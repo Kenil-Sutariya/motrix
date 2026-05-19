@@ -1,0 +1,9 @@
+{
+  "name": "motrix-master",
+  "version": "2.1.0",
+  "private": true,
+  "description": "MOTRIX master build plan with cross-device sync",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

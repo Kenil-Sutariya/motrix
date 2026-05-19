@@ -156,6 +156,88 @@
     margin-left: auto; transition: color 0.3s ease;
   }
   .save-indicator.flash { color: var(--done); }
+  .save-indicator.syncing { color: var(--orange); }
+  .save-indicator.error { color: #b91c1c; }
+
+  /* ===== PASSWORD GATE ===== */
+  .gate-overlay {
+    position: fixed; inset: 0;
+    background: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(26,22,18,0.04) 28px, rgba(26,22,18,0.04) 29px),
+      radial-gradient(ellipse at 50% 50%, rgba(217,83,30,0.08), transparent 60%);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .gate-card {
+    border: 2px solid var(--ink);
+    background: var(--birch);
+    padding: 36px 32px;
+    box-shadow: 8px 8px 0 var(--ink);
+    max-width: 420px;
+    width: 100%;
+  }
+  .gate-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 36px; font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .gate-card h2 .accent { color: var(--orange); font-style: italic; }
+  .gate-card .sub {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 24px;
+  }
+  .gate-card input[type=password] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  .gate-card input[type=password]:focus { background: #fff; }
+  .gate-card .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .gate-card button {
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 11px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .gate-card button:hover { background: var(--orange); border-color: var(--orange); }
+  .gate-card .gate-err {
+    font-size: 11px; color: #b91c1c;
+    margin-top: 10px; min-height: 16px;
+    letter-spacing: 0.05em;
+  }
+  .gate-card .gate-hint {
+    font-size: 10px; color: var(--mute);
+    margin-top: 14px; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .name-row { margin-top: 10px; }
+  .name-row label {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft);
+    display: block; margin-bottom: 6px;
+  }
+  .name-row input {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--ink); background: var(--paper);
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    outline: none;
+  }
+
+  .last-edit {
+    margin-left: 12px;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: var(--mute); text-transform: uppercase;
+  }
 
   /* TABS */
   nav.tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid var(--ink); flex-wrap: wrap; }
@@ -326,6 +408,27 @@
 </head>
 <body>
 
+<!-- ===== PASSWORD GATE ===== -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card">
+    <h2>MO<span class="accent">TRIX</span></h2>
+    <div class="sub">Sync · Private Workspace</div>
+    <form id="gateForm">
+      <input type="password" id="gatePassword" placeholder="Enter shared password" autocomplete="current-password" required>
+      <div class="name-row">
+        <label for="gateName">Your name (so the other device knows who edited)</label>
+        <input type="text" id="gateName" placeholder="e.g. Aarav or Riya" required>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <button type="submit" id="gateSubmit">Unlock</button>
+        <span style="font-size:10px;color:var(--mute);letter-spacing:0.15em;">Shared across all your devices</span>
+      </div>
+      <div class="gate-err" id="gateError"></div>
+      <div class="gate-hint">First time? Set the password in your Vercel project's MOTRIX_PASSWORD env var.</div>
+    </form>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header>
@@ -378,7 +481,9 @@
       <button class="data-btn" id="importBtn">Import JSON</button>
       <input type="file" id="importFile" accept=".json" style="display:none">
       <button class="data-btn danger" id="resetBtn" disabled>Reset All</button>
-      <span class="save-indicator" id="saveIndicator">Auto-saved</span>
+      <button class="data-btn" id="logoutBtn">Lock</button>
+      <span class="save-indicator" id="saveIndicator">Connecting…</span>
+      <span class="last-edit" id="lastEdit"></span>
     </div>
   </header>
 
@@ -853,53 +958,267 @@
 
 <script>
 (function() {
-  const STORAGE_KEY = 'motrix-master-v2';
-  let state = {};
+  // ====== CONFIG ======
+  const API_URL = '/api/state';
+  const POLL_INTERVAL_MS = 5000;
+  const SAVE_DEBOUNCE_MS = 500;
+  const LOCAL_AUTH_KEY = 'motrix-auth-v2';
+  const LOCAL_NAME_KEY = 'motrix-name-v2';
+  const LOCAL_CACHE_KEY = 'motrix-cache-v2'; // optimistic offline cache
 
-  // ====== LOAD ======
-  try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) state = JSON.parse(saved); } catch(e) { state = {}; }
-
-  // ====== AUTO-SAVE INDICATOR ======
-  const saveIndicator = document.getElementById('saveIndicator');
+  // ====== STATE ======
+  let state = {};            // { taskId: true/false }
+  let serverUpdatedAt = null;
+  let serverUpdatedBy = null;
+  let password = '';
+  let myName = '';
   let saveTimer = null;
+  let pollTimer = null;
+  let pendingSave = false;
+  let isSaving = false;
+
+  // ====== DOM ======
+  const gateOverlay = document.getElementById('gateOverlay');
+  const gateForm = document.getElementById('gateForm');
+  const gatePassword = document.getElementById('gatePassword');
+  const gateName = document.getElementById('gateName');
+  const gateError = document.getElementById('gateError');
+  const gateSubmit = document.getElementById('gateSubmit');
+  const saveIndicator = document.getElementById('saveIndicator');
+  const lastEditEl = document.getElementById('lastEdit');
+
+  // ====== INDICATOR ======
+  function setStatus(text, cls) {
+    saveIndicator.textContent = text;
+    saveIndicator.classList.remove('flash', 'syncing', 'error');
+    if (cls) saveIndicator.classList.add(cls);
+  }
   function flashSaved() {
-    saveIndicator.textContent = 'Saved ✓';
-    saveIndicator.classList.add('flash');
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      saveIndicator.textContent = 'Auto-saved';
-      saveIndicator.classList.remove('flash');
-    }, 1500);
+    setStatus('Saved ✓', 'flash');
+    setTimeout(() => { if (!isSaving) setStatus('Synced', null); }, 1500);
+  }
+  function showLastEdit() {
+    if (!serverUpdatedAt) { lastEditEl.textContent = ''; return; }
+    const when = new Date(serverUpdatedAt);
+    const now = new Date();
+    const diffMs = now - when;
+    let rel;
+    if (diffMs < 60000) rel = 'just now';
+    else if (diffMs < 3600000) rel = Math.floor(diffMs/60000) + 'm ago';
+    else if (diffMs < 86400000) rel = Math.floor(diffMs/3600000) + 'h ago';
+    else rel = Math.floor(diffMs/86400000) + 'd ago';
+    const who = serverUpdatedBy && serverUpdatedBy !== myName ? serverUpdatedBy : 'you';
+    lastEditEl.textContent = 'Last edit · ' + who + ' · ' + rel;
   }
 
-  const save = () => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      flashSaved();
-    } catch(e) {}
-  };
+  // ====== AUTH FLOW ======
+  function showGate(errorMsg) {
+    gateOverlay.style.display = 'flex';
+    if (errorMsg) gateError.textContent = errorMsg;
+    setTimeout(() => gatePassword.focus(), 100);
+  }
+  function hideGate() {
+    gateOverlay.style.display = 'none';
+    gateError.textContent = '';
+  }
 
-  // ====== HYDRATE CHECKBOXES ======
+  gateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = gatePassword.value.trim();
+    const nm = gateName.value.trim();
+    if (!pw || !nm) return;
+    gateSubmit.disabled = true;
+    gateSubmit.textContent = 'Checking…';
+    gateError.textContent = '';
+    try {
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        headers: { 'x-motrix-password': pw }
+      });
+      if (res.status === 401) {
+        gateError.textContent = 'Wrong password — try again.';
+        gateSubmit.disabled = false;
+        gateSubmit.textContent = 'Unlock';
+        return;
+      }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        gateError.textContent = err.error || ('Server error ' + res.status);
+        gateSubmit.disabled = false;
+        gateSubmit.textContent = 'Unlock';
+        return;
+      }
+      const data = await res.json();
+      password = pw;
+      myName = nm;
+      try {
+        sessionStorage.setItem(LOCAL_AUTH_KEY, pw);
+        localStorage.setItem(LOCAL_NAME_KEY, nm);
+      } catch(e) {}
+      state = data.progress || {};
+      serverUpdatedAt = data.updatedAt;
+      serverUpdatedBy = data.updatedBy;
+      hideGate();
+      hydrateFromState();
+      updateAll();
+      setStatus('Synced', null);
+      showLastEdit();
+      startPolling();
+    } catch (err) {
+      gateError.textContent = 'Network error: ' + err.message;
+      gateSubmit.disabled = false;
+      gateSubmit.textContent = 'Unlock';
+    }
+  });
+
+  // Try cached credentials on page load
+  function tryAutoUnlock() {
+    let pw = '';
+    let nm = '';
+    try {
+      pw = sessionStorage.getItem(LOCAL_AUTH_KEY) || '';
+      nm = localStorage.getItem(LOCAL_NAME_KEY) || '';
+    } catch(e) {}
+    if (pw && nm) {
+      gatePassword.value = pw;
+      gateName.value = nm;
+      // submit programmatically
+      gateForm.dispatchEvent(new Event('submit', { cancelable: true }));
+    } else {
+      if (nm) gateName.value = nm;
+      showGate();
+    }
+  }
+
+  // ====== HYDRATE CHECKBOXES FROM STATE ======
+  function hydrateFromState() {
+    document.querySelectorAll('li.task').forEach(li => {
+      const id = li.dataset.id;
+      li.classList.toggle('done', !!state[id]);
+    });
+  }
+
+  // ====== SAVE TO SERVER ======
+  async function pushToServer() {
+    if (!password) return;
+    if (isSaving) { pendingSave = true; return; }
+    isSaving = true;
+    setStatus('Saving…', 'syncing');
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-motrix-password': password
+        },
+        body: JSON.stringify({ progress: state, updatedBy: myName })
+      });
+      if (res.status === 401) {
+        setStatus('Auth lost', 'error');
+        showGate('Session expired. Re-enter password.');
+        return;
+      }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setStatus('Save failed', 'error');
+        console.error('Save error', err);
+        return;
+      }
+      const data = await res.json();
+      serverUpdatedAt = data.updatedAt;
+      serverUpdatedBy = data.updatedBy;
+      showLastEdit();
+      flashSaved();
+      // local cache as backup if network later dies
+      try { localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(state)); } catch(e) {}
+    } catch (err) {
+      setStatus('Offline', 'error');
+      // cache locally so user doesn't lose work
+      try { localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(state)); } catch(e) {}
+      console.error(err);
+    } finally {
+      isSaving = false;
+      if (pendingSave) {
+        pendingSave = false;
+        pushToServer();
+      }
+    }
+  }
+
+  function debouncedSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(pushToServer, SAVE_DEBOUNCE_MS);
+  }
+
+  // ====== POLL FOR UPDATES FROM OTHER DEVICES ======
+  async function pullFromServer() {
+    if (!password) return;
+    if (isSaving) return; // don't fight our own write
+    try {
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        headers: { 'x-motrix-password': password }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      // Only apply if server has newer data than what we know
+      if (data.updatedAt && data.updatedAt !== serverUpdatedAt) {
+        const incoming = data.progress || {};
+        // Merge: server is source of truth for keys it knows
+        state = incoming;
+        serverUpdatedAt = data.updatedAt;
+        serverUpdatedBy = data.updatedBy;
+        hydrateFromState();
+        updateAll();
+        showLastEdit();
+        if (data.updatedBy && data.updatedBy !== myName) {
+          setStatus('Updated by ' + data.updatedBy, 'flash');
+          setTimeout(() => setStatus('Synced', null), 2000);
+        }
+      } else {
+        showLastEdit();
+      }
+    } catch (err) {
+      // Silent — polling failures shouldn't spam the user
+    }
+  }
+
+  function startPolling() {
+    clearInterval(pollTimer);
+    pollTimer = setInterval(pullFromServer, POLL_INTERVAL_MS);
+    // also pull immediately when window regains focus
+    window.addEventListener('focus', pullFromServer);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) pullFromServer();
+    });
+  }
+
+  // ====== ATTACH CHECKBOX HANDLERS ======
   document.querySelectorAll('li.task').forEach(li => {
-    const id = li.dataset.id;
-    if (state[id]) li.classList.add('done');
     li.addEventListener('click', () => {
       li.classList.toggle('done');
-      state[id] = li.classList.contains('done');
-      save();
+      state[li.dataset.id] = li.classList.contains('done');
       updateAll();
+      debouncedSave();
     });
   });
 
+  // ====== LOGOUT ======
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    try { sessionStorage.removeItem(LOCAL_AUTH_KEY); } catch(e) {}
+    password = '';
+    clearInterval(pollTimer);
+    gatePassword.value = '';
+    showGate();
+  });
+
   // ====== PRODUCT GRID (DYNAMIC) ======
-  // Maps product key → which tab(s) contain its tasks
   const products = [
     { key: 'windmill', name: 'Windmill', id: 'KL-W01', icon: '⊛', order: 1, panel: 'windmill', extraPanels: ['standard'] },
     { key: 'conveyor', name: 'Conveyor Belt', id: 'KL-C02', icon: '▬', order: 2, panel: 'conveyor', extraPanels: [] },
     { key: 'crane',    name: 'Crane',         id: 'KL-R03', icon: '⌐', order: 3, panel: 'crane',    extraPanels: [] },
     { key: 'ropeway',  name: 'Ropeway',       id: 'KL-Y04', icon: '⋰', order: 4, panel: 'ropeway',  extraPanels: [] }
   ];
-
   const grid = document.getElementById('productsGrid');
   products.forEach(p => {
     const card = document.createElement('div');
@@ -931,7 +1250,6 @@
 
   // ====== UPDATE ALL ======
   function updateAll() {
-    // overall progress
     const all = document.querySelectorAll('li.task');
     const done = document.querySelectorAll('li.task.done');
     const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
@@ -940,7 +1258,6 @@
     document.getElementById('progTotal').textContent = all.length;
     document.getElementById('progFill').style.width = pct + '%';
 
-    // operator totals
     const counts = { A: [0,0], B: [0,0], X: [0,0] };
     all.forEach(li => {
       const w = li.dataset.who;
@@ -956,7 +1273,6 @@
     document.getElementById('pxDone').textContent = counts.X[0];
     document.getElementById('pxTotal').textContent = counts.X[1];
 
-    // per-track progress
     document.querySelectorAll('.track').forEach(track => {
       const tasks = track.querySelectorAll('li.task');
       const tDone = track.querySelectorAll('li.task.done');
@@ -965,7 +1281,6 @@
       if (pctEl) pctEl.textContent = tPct;
     });
 
-    // per-product totals (across product's panels)
     let activeProductFound = false;
     let currentProduct = null;
 
@@ -1006,7 +1321,6 @@
       }
     });
 
-    // current product banner
     if (currentProduct) {
       document.getElementById('currentName').textContent = currentProduct.name;
       document.getElementById('currentDone').textContent = currentProduct.done;
@@ -1019,7 +1333,6 @@
       document.getElementById('currentPct').textContent = 100;
     }
 
-    // channel progress
     const channels = ['amazon', 'flipkart', 'etsy'];
     channels.forEach(ch => {
       const tasks = document.querySelectorAll(`li.task[data-channel="${ch}"]`);
@@ -1032,7 +1345,6 @@
       if (tEl) tEl.textContent = tasks.length;
       if (bEl) bEl.style.width = tPct + '%';
     });
-    // own website channel (track t7)
     const ownTasks = document.querySelectorAll('#panel-web li.task');
     const ownDone = document.querySelectorAll('#panel-web li.task.done');
     const ownPct = ownTasks.length ? Math.round((ownDone.length / ownTasks.length) * 100) : 0;
@@ -1043,7 +1355,6 @@
     if (ownTEl) ownTEl.textContent = ownTasks.length;
     if (ownBEl) ownBEl.style.width = ownPct + '%';
 
-    // tab badges
     document.querySelectorAll('.tab').forEach(tab => {
       const panelId = tab.dataset.panel;
       const panel = document.getElementById('panel-' + panelId);
@@ -1061,14 +1372,16 @@
       }
       badge.textContent = txt;
     });
-  }
-  updateAll();
 
-  // ====== EXPORT ======
+    // refresh last-edit relative time
+    showLastEdit();
+  }
+
+  // ====== EXPORT / IMPORT ======
   document.getElementById('exportBtn').addEventListener('click', () => {
     const data = {
       app: 'MOTRIX-Master',
-      version: '2.0',
+      version: '2.1',
       exported: new Date().toISOString(),
       progress: state
     };
@@ -1083,7 +1396,6 @@
     URL.revokeObjectURL(url);
   });
 
-  // ====== IMPORT ======
   document.getElementById('importBtn').addEventListener('click', () => {
     document.getElementById('importFile').click();
   });
@@ -1095,14 +1407,11 @@
       try {
         const data = JSON.parse(ev.target.result);
         if (data && data.progress) {
-          if (!confirm('Replace current progress with imported file? Your current state will be overwritten.')) return;
+          if (!confirm('Replace shared progress with imported file? This affects ALL devices.')) return;
           state = data.progress;
-          save();
-          document.querySelectorAll('li.task').forEach(li => {
-            li.classList.toggle('done', !!state[li.dataset.id]);
-          });
+          hydrateFromState();
           updateAll();
-          alert('Imported successfully.');
+          pushToServer();
         } else {
           alert('Invalid file format.');
         }
@@ -1117,13 +1426,18 @@
   // ====== RESET ======
   document.getElementById('resetBtn').addEventListener('click', (e) => {
     if (e.currentTarget.disabled) return;
-    if (confirm('Reset all progress? This cannot be undone (consider exporting first).')) {
+    if (confirm('Reset all progress on ALL devices? This cannot be undone (consider exporting first).')) {
       state = {};
-      save();
       document.querySelectorAll('li.task.done').forEach(li => li.classList.remove('done'));
       updateAll();
+      pushToServer();
     }
   });
+  // Enable reset button now that handler is wired
+  document.getElementById('resetBtn').disabled = false;
+
+  // ====== KICK OFF ======
+  tryAutoUnlock();
 })();
 </script>
 
