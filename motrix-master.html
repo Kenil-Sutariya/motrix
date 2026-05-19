@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTRIX · Master Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --birch: #e8dcc0;
+    --birch-deep: #d4c197;
+    --birch-shadow: #b8a378;
+    --ink: #1a1612;
+    --ink-soft: #3a322a;
+    --paper: #f4ead4;
+    --orange: #d9531e;
+    --orange-deep: #a93d12;
+    --mute: #8a7a5c;
+    --done: #4a7c3a;
+    --pa: #d9531e;
+    --pb: #2e5c8a;
+    --both: #6b4a8a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(26,22,18,0.04) 28px, rgba(26,22,18,0.04) 29px),
+      radial-gradient(ellipse at 20% 10%, rgba(217,83,30,0.05), transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(184,163,120,0.15), transparent 50%);
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px 96px; }
+
+  header {
+    border: 2px solid var(--ink);
+    background: var(--birch);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    position: relative;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  header::before {
+    content: "MASTER PLAN · v2.0 · 2 OPERATORS";
+    position: absolute;
+    top: -10px; right: 24px;
+    background: var(--paper);
+    padding: 0 10px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+  }
+
+  .title-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: clamp(44px, 7vw, 84px);
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+  }
+  h1 .accent { color: var(--orange); font-style: italic; font-weight: 800; }
+  .acronym {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+  .acronym b { color: var(--orange); font-weight: 700; }
+
+  .progress-block { text-align: right; min-width: 220px; }
+  .progress-num { font-family: 'Fraunces', serif; font-size: 56px; font-weight: 900; line-height: 1; color: var(--orange); }
+  .progress-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+  .progress-bar { margin-top: 12px; height: 8px; background: var(--paper); border: 1px solid var(--ink); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--orange); width: 0%; transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); background-image: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,0.15) 6px, rgba(0,0,0,0.15) 8px); }
+
+  /* CURRENT PRODUCT BANNER */
+  .current-banner {
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .current-banner .pulse {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 0 0 var(--orange);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(217,83,30,0.7); }
+    70% { box-shadow: 0 0 0 14px rgba(217,83,30,0); }
+    100% { box-shadow: 0 0 0 0 rgba(217,83,30,0); }
+  }
+  .current-tag { font-size: 10px; letter-spacing: 0.2em; color: var(--birch-deep); }
+  .current-name { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; flex: 1; }
+  .current-stats { font-size: 11px; color: var(--birch-deep); letter-spacing: 0.1em; }
+
+  /* OPS */
+  .ops { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--ink); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .op { border: 1.5px solid var(--ink); padding: 10px 14px; background: var(--paper); }
+  .op-tag { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .op-pa { border-left: 5px solid var(--pa); }
+  .op-pb { border-left: 5px solid var(--pb); }
+  .op-both { border-left: 5px solid var(--both); }
+  .op-name { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; margin-top: 2px; }
+  .op-pct { font-size: 11px; color: var(--mute); margin-top: 4px; }
+
+  /* DATA CONTROLS */
+  .data-controls {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--ink);
+    display: flex; gap: 10px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .data-controls .label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-right: 4px; }
+  .data-btn {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 6px 14px;
+    font-family: inherit; font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .data-btn:hover { background: var(--ink); color: var(--paper); }
+  .data-btn.danger:hover { background: var(--orange); border-color: var(--orange); color: var(--paper); }
+  .data-btn:disabled,
+  .data-btn:disabled:hover {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: var(--paper);
+    border-color: var(--ink-soft);
+    color: var(--ink-soft);
+  }
+  .save-indicator {
+    font-size: 10px; letter-spacing: 0.15em; color: var(--mute); text-transform: uppercase;
+    margin-left: auto; transition: color 0.3s ease;
+  }
+  .save-indicator.flash { color: var(--done); }
+
+  /* TABS */
+  nav.tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid var(--ink); flex-wrap: wrap; }
+  .tab {
+    background: var(--birch-deep);
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    padding: 11px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--ink-soft);
+    margin-right: -2px; margin-bottom: -2px;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .tab:hover { background: var(--birch); color: var(--ink); }
+  .tab.active { background: var(--paper); color: var(--ink); z-index: 2; }
+  .tab.active::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 4px; background: var(--paper); }
+  .tab .mini {
+    display: inline-block;
+    background: var(--orange); color: var(--paper);
+    padding: 1px 6px; margin-left: 6px;
+    font-size: 9px; font-weight: 700;
+  }
+  .tab.complete .mini { background: var(--done); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadein 0.3s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .track {
+    border: 2px solid var(--ink);
+    margin-bottom: 24px;
+    background: var(--paper);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .track-header {
+    background: var(--ink);
+    color: var(--birch);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .track-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 22px; color: var(--orange); font-weight: 800; }
+  .track-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; flex: 1; min-width: 200px; }
+  .track-meta { font-size: 10px; letter-spacing: 0.2em; color: var(--birch-deep); text-transform: uppercase; }
+  .track-progress {
+    font-size: 11px; color: var(--orange); letter-spacing: 0.1em;
+    background: var(--paper); padding: 4px 10px; border: 1px solid var(--orange);
+  }
+  .track-body { padding: 18px 22px 8px; }
+  .track-desc { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 14px; padding: 10px 14px; border-left: 3px solid var(--orange); background: var(--birch); font-style: italic; }
+
+  ul.tasks { list-style: none; padding: 0; }
+  li.task {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 8px;
+    border-bottom: 1px dashed var(--birch-shadow);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  li.task:last-child { border-bottom: none; }
+  li.task:hover { background: var(--birch); }
+
+  .check {
+    flex-shrink: 0; width: 22px; height: 22px;
+    border: 2px solid var(--ink); background: var(--paper);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+    transition: all 0.15s ease; position: relative;
+  }
+  li.task:hover .check { background: var(--birch-deep); }
+  .check::after {
+    content: "";
+    width: 12px; height: 6px;
+    border-left: 3px solid var(--paper);
+    border-bottom: 3px solid var(--paper);
+    transform: rotate(-45deg) translate(1px, -1px) scale(0);
+    transition: transform 0.2s cubic-bezier(0.2, 1.5, 0.5, 1);
+  }
+  li.task.done .check { background: var(--ink); border-color: var(--ink); }
+  li.task.done .check::after { transform: rotate(-45deg) translate(1px, -1px) scale(1); }
+  .task-text { flex: 1; font-size: 13px; transition: all 0.2s ease; }
+  li.task.done .task-text { color: var(--mute); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+  .who { flex-shrink: 0; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; padding: 3px 8px; text-transform: uppercase; border: 1px solid var(--ink); min-width: 28px; text-align: center; align-self: center; }
+  .who-A { background: var(--pa); color: var(--paper); border-color: var(--pa); }
+  .who-B { background: var(--pb); color: var(--paper); border-color: var(--pb); }
+  .who-X { background: var(--both); color: var(--paper); border-color: var(--both); }
+  .hrs { flex-shrink: 0; font-size: 10px; color: var(--mute); align-self: center; min-width: 36px; text-align: right; }
+
+  /* GATES */
+  .gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .gate { border: 2px solid var(--ink); background: var(--paper); padding: 18px 20px; box-shadow: 4px 4px 0 var(--ink); }
+  .gate-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 32px; font-weight: 900; color: var(--orange); line-height: 1; }
+  .gate-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; margin-top: 6px; }
+  .gate-desc { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+
+  /* PRODUCT CARDS */
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-bottom: 32px; }
+  .prod {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .prod:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .prod-img {
+    height: 120px;
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 48px;
+    background: var(--birch);
+    background-image: repeating-linear-gradient(135deg, transparent, transparent 12px, rgba(26,22,18,0.05) 12px, rgba(26,22,18,0.05) 13px);
+    color: var(--ink-soft);
+  }
+  .prod.active .prod-img { background-color: var(--orange); color: var(--paper); }
+  .prod.complete .prod-img { background-color: var(--done); color: var(--paper); }
+  .prod-info { padding: 14px 16px; flex: 1; }
+  .prod-name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700; }
+  .prod-id { font-size: 10px; letter-spacing: 0.2em; color: var(--mute); text-transform: uppercase; margin-top: 4px; }
+  .prod-status { display: inline-block; margin-top: 10px; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 10px; border: 1px solid var(--ink); background: var(--birch-deep); font-weight: 700; }
+  .prod-status.s-active { background: var(--orange); color: var(--paper); }
+  .prod-status.s-done { background: var(--done); color: var(--paper); }
+  .prod-order { font-size: 10px; color: var(--mute); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 6px; }
+  .prod-mini-bar { height: 4px; background: var(--birch-deep); border-top: 1px solid var(--ink); position: relative; }
+  .prod-mini-fill { height: 100%; background: var(--orange); width: 0%; transition: width 0.4s ease; }
+  .prod.complete .prod-mini-fill { background: var(--done); }
+
+  /* SPECS */
+  .spec-table { width: 100%; border-collapse: collapse; background: var(--paper); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  .spec-table th, .spec-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--birch-shadow); font-size: 13px; }
+  .spec-table th { background: var(--ink); color: var(--birch); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table td:first-child { font-weight: 700; }
+  .spec-table td:nth-child(2) { color: var(--orange-deep); font-weight: 500; }
+
+  /* CHANNEL CARDS */
+  .channels { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .channel { border: 2px solid var(--ink); background: var(--paper); padding: 16px 18px; box-shadow: 4px 4px 0 var(--ink); }
+  .channel h4 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .channel .pct { font-size: 11px; color: var(--mute); }
+  .channel .bar { height: 4px; background: var(--birch-deep); margin-top: 8px; }
+  .channel .bar-fill { height: 100%; background: var(--orange); width: 0%; transition: width 0.4s ease; }
+
+  /* FOOTER */
+  footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--ink); display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 700px) {
+    .wrap { padding: 20px 14px 60px; }
+    header { padding: 20px; box-shadow: 4px 4px 0 var(--ink); }
+    .title-row { flex-direction: column; align-items: flex-start; }
+    .progress-block { text-align: left; }
+    .ops { grid-template-columns: 1fr; }
+    nav.tabs { overflow-x: auto; flex-wrap: nowrap; }
+    .tab { white-space: nowrap; padding: 10px 12px; font-size: 10px; }
+    .track-body { padding: 14px 14px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="title-row">
+      <div>
+        <h1>MO<span class="accent">TRIX</span></h1>
+        <div class="acronym">
+          <b>M</b>achines · <b>O</b>perations · <b>T</b>orque · <b>R</b>eal-world · <b>I</b>ndustrial · <b>X</b>ploration
+        </div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-num"><span id="progPct">0</span>%</div>
+        <div class="progress-label"><span id="progDone">0</span> / <span id="progTotal">0</span> Tasks</div>
+        <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      </div>
+    </div>
+
+    <div class="current-banner">
+      <div class="pulse"></div>
+      <div>
+        <div class="current-tag">CURRENTLY BUILDING</div>
+        <div class="current-name" id="currentName">Windmill</div>
+      </div>
+      <div class="current-stats">
+        <span id="currentDone">0</span>/<span id="currentTotal">0</span> · <span id="currentPct">0</span>% complete
+      </div>
+    </div>
+
+    <div class="ops">
+      <div class="op op-pa">
+        <div class="op-tag">Operator A</div>
+        <div class="op-name">Product Design</div>
+        <div class="op-pct">2 hrs/day · <span id="paDone">0</span>/<span id="paTotal">0</span></div>
+      </div>
+      <div class="op op-pb">
+        <div class="op-tag">Operator B</div>
+        <div class="op-name">Tech &amp; Web</div>
+        <div class="op-pct">1 hr/day · <span id="pbDone">0</span>/<span id="pbTotal">0</span></div>
+      </div>
+      <div class="op op-both">
+        <div class="op-tag">Together</div>
+        <div class="op-name">Joint Sessions</div>
+        <div class="op-pct">Weekend reviews · <span id="pxDone">0</span>/<span id="pxTotal">0</span></div>
+      </div>
+    </div>
+
+    <div class="data-controls">
+      <span class="label">Data:</span>
+      <button class="data-btn" id="exportBtn">Export JSON</button>
+      <button class="data-btn" id="importBtn">Import JSON</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+      <button class="data-btn danger" id="resetBtn" disabled>Reset All</button>
+      <span class="save-indicator" id="saveIndicator">Auto-saved</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabBar">
+    <button class="tab active" data-panel="overview">00 · Overview</button>
+    <button class="tab" data-panel="standard">T1 · Standard</button>
+    <button class="tab" data-panel="windmill">T2 · Windmill</button>
+    <button class="tab" data-panel="conveyor">T3 · Conveyor</button>
+    <button class="tab" data-panel="crane">T4 · Crane</button>
+    <button class="tab" data-panel="ropeway">T5 · Ropeway</button>
+    <button class="tab" data-panel="brand">T6 · Brand &amp; Pack</button>
+    <button class="tab" data-panel="web">T7 · Website</button>
+    <button class="tab" data-panel="marketplaces">T8 · Marketplaces</button>
+    <button class="tab" data-panel="launch">T9 · Launch &amp; Ops</button>
+    <button class="tab" data-panel="specs">Specs</button>
+  </nav>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="panel active" id="panel-overview">
+    <div class="products-grid" id="productsGrid"></div>
+
+    <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:14px;">The 4 Phase Gates</h2>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:18px;font-style:italic;">A product is not "shippable" until it clears all 4 gates. Skip a gate, pay it back later with returns and complaints.</p>
+    <div class="gates">
+      <div class="gate"><div class="gate-num">01</div><div class="gate-name">Mechanical</div><div class="gate-desc">Works smoothly, repeatably, 10 times in a row without intervention.</div></div>
+      <div class="gate"><div class="gate-num">02</div><div class="gate-name">Stranger</div><div class="gate-desc">Someone who didn't build it can assemble it from your manual alone.</div></div>
+      <div class="gate"><div class="gate-num">03</div><div class="gate-name">Sale</div><div class="gate-desc">5+ real strangers have paid real money for it on at least one channel.</div></div>
+      <div class="gate"><div class="gate-num">04</div><div class="gate-name">Margin</div><div class="gate-desc">You've shipped enough to know true unit cost — including returns and damage.</div></div>
+    </div>
+
+    <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin:32px 0 14px;">Sales Channels</h2>
+    <div class="channels" id="channelsGrid">
+      <div class="channel"><h4>Own Website</h4><div class="pct"><span data-ch-done="own">0</span>/<span data-ch-total="own">0</span> tasks</div><div class="bar"><div class="bar-fill" data-ch-bar="own"></div></div></div>
+      <div class="channel"><h4>Amazon India</h4><div class="pct"><span data-ch-done="amazon">0</span>/<span data-ch-total="amazon">0</span> tasks</div><div class="bar"><div class="bar-fill" data-ch-bar="amazon"></div></div></div>
+      <div class="channel"><h4>Flipkart</h4><div class="pct"><span data-ch-done="flipkart">0</span>/<span data-ch-total="flipkart">0</span> tasks</div><div class="bar"><div class="bar-fill" data-ch-bar="flipkart"></div></div></div>
+      <div class="channel"><h4>Etsy (Global)</h4><div class="pct"><span data-ch-done="etsy">0</span>/<span data-ch-total="etsy">0</span> tasks</div><div class="bar"><div class="bar-fill" data-ch-bar="etsy"></div></div></div>
+    </div>
+  </section>
+
+  <!-- ============ T1 STANDARD ============ -->
+  <section class="panel" id="panel-standard">
+    <div class="track" data-product="standard">
+      <div class="track-header">
+        <div class="track-num">T1</div>
+        <div class="track-title">MOTRIX-Link Standard — Lock the Interface</div>
+        <div class="track-meta">Foundation · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Before designing 4 interoperable products, lock the shared interface with one test coupon. v1.1 is born here. This is the only block that must finish before product CAD begins.</div>
+        <ul class="tasks">
+          <li class="task" data-id="s-1" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Buy digital calipers (0.01mm), steel rule, vernier gauge</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-2" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">List every shared interface across all 4 products: shaft Ø, pulley bore, M3 grid, tower-base footprint, cable Ø</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="s-3" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">CAD the test coupon — every hole, slot, motor pocket, M3 grid, rail joint on ONE A4 sheet</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="s-4" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Add kerf compensation table to CAD (0.1mm typical for 4mm ply)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-5" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Identify 3 Rajkot laser vendors — visit, compare quality, get sample cuts</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="s-6" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Source N20 motors (60/100/300 RPM), 4mm shafts, M3 bolts/nuts/washers</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-7" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Order birch ply (4mm and 6mm), grade B-BB, ≥15 sheets for prototyping</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Pick up test coupon — inspect cut edge quality (charring, smoothness)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-9" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Caliper EVERY dimension, log delta from spec in a spreadsheet</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="s-10" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Fit-test: shaft slip, motor snap-fit, M3 thread engagement, rail mate</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-11" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Write MOTRIX-Link v1.1 spec document: nominal, tolerance, fit class for each interface</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="s-12" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Build "MOTRIX-Link Toolkit" — golden reference parts kept on the bench</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="s-13" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">Joint review: confirm v1.1 supports all 4 product concepts before T2 begins</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T2 WINDMILL ============ -->
+  <section class="panel" id="panel-windmill">
+    <div class="track" data-product="windmill">
+      <div class="track-header">
+        <div class="track-num">T2</div>
+        <div class="track-title">Windmill — Hero Product</div>
+        <div class="track-meta">Order 1 of 4 · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">The first product the customer ever sees from MOTRIX. Goal: blades spin from breath, look beautiful, flat-pack into a small box. Two CAD revisions minimum.</div>
+        <ul class="tasks">
+          <li class="task" data-id="w-1" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Reference research: collect 20 windmill images — Dutch, modern, kinetic art, toy</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-2" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Type decision: horizontal-axis (HAWT) vs vertical-axis Savonius (VAWT) — pick one with rationale</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Function decision: pure spin, or drives a connected demo (LED, water pump, lift)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-4" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Hand-sketch 5 form variations on paper, photograph each</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="w-5" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Pick blade count: 3 (efficient) vs 5 (looks heavier) vs 12 (Dutch aesthetic)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-6" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Blade airfoil sketch — flat angled vs cambered vs twisted</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-7" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v1: tower (3 segments), nacelle, hub, blades, base — all using MOTRIX-Link v1.1</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="w-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Bearing decision: bare shaft hole, ball bearing, or brass bushing</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-9" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Export DXF v1 with kerf compensation</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-10" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Send to laser vendor, confirm nest layout and cost per kit</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-11" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Pick up v1 cut parts, inspect</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-12" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Dry-assemble v1, log every wobble, gap, friction point in notebook</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="w-13" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Spin test v1: breath, desk fan @ 0.5m, hand flick — measure rotations</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-14" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Stability test v1: tip-over angle of base, weight needed in base</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-15" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v2: fix every v1 problem, reduce part count, add slot-and-tab where possible</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="w-16" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v2 at vendor</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-17" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v2 — should feel "right"; if not, schedule v3</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="w-18" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Apply matte black + orange finishes on non-structural accents only (preserves the wood story)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-19" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Repeatability: assemble &amp; spin 10x consecutively, log any failures</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-20" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Drop test: 50cm onto wood floor, check what breaks</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-21" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Lock final BOM — part, qty, source, lead time, cost</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-22" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Cost sheet: parts + labor + box + manual + waste + 10% overhead</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="w-23" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Price benchmarking — search competitor STEM kits, set MOTRIX price (target 3.5× cost)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="w-24" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 01 (Mechanical) — Windmill review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T3 CONVEYOR ============ -->
+  <section class="panel" id="panel-conveyor">
+    <div class="track" data-product="conveyor">
+      <div class="track-header">
+        <div class="track-num">T3</div>
+        <div class="track-title">Conveyor Belt — Cycle 2</div>
+        <div class="track-meta">Order 2 of 4 · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">The only motorized product in v1 launch. Goal: ball rides from A to B, belt tracks straight, analog speed control via potentiometer. Tougher mechanically than the windmill.</div>
+        <ul class="tasks">
+          <li class="task" data-id="c-1" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Belt material decision: silicone, rubber band, fabric loop, 3D-printed segmented</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-2" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Order 3 belt material samples</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="c-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Roller diameter decision (large = better tracking, smaller = compact)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-4" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Sketch frame, end rollers, motor mount, tensioner, belt path</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-5" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v1: frame (slot-built), 2 rollers (4mm bore), N20 mount, tensioner slot</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="c-6" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Design crowned roller (slight conic shape) to keep belt centered</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="c-7" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Analog speed-control circuit: 9V battery + potentiometer + TIP120 transistor</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Order speed-control parts (pot, TIP120, battery clip, slide switch)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="c-9" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v1 at vendor</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="c-10" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v1 dry, install motor, fit belt</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="c-11" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Tracking test: belt should not walk off rollers in 60s of running</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="c-12" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Iterate on roller crown / belt tension until tracking is stable</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-13" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Speed-range test: minimum stall, maximum surge, target operating band</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-14" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v2: fix tracking issues, simplify wiring, add hopper at one end</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="c-15" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v2</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="c-16" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v2, run 10-minute continuous test</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="c-17" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Apply finishes; lock BOM and cost sheet</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="c-18" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 01 (Mechanical) — Conveyor review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T4 CRANE ============ -->
+  <section class="panel" id="panel-crane">
+    <div class="track" data-product="crane">
+      <div class="track-header">
+        <div class="track-num">T4</div>
+        <div class="track-title">Crane — Cycle 3</div>
+        <div class="track-meta">Order 3 of 4 · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Hand-cranked, two-axis. Hook lowers and lifts via a worm-or-spool mechanism; jib rotates on the tower. Highest perceived value — buyers will photograph it.</div>
+        <ul class="tasks">
+          <li class="task" data-id="r-1" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Crane type decision: tower crane vs jib crane vs gantry</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-2" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Decide drive type: hand crank, gear ratchet, or worm gear</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Sketch lattice tower variants — exposed structure is the visual hook</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-4" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Rotational base design — turntable using same M3 grid + central shaft</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-5" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v1: tower, jib, drum, hook, base, hand crank</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="r-6" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Calculate max lift load (target: 200g safely)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-7" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cable: 0.8mm braided polyester (shared with Ropeway)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="r-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v1 at vendor</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="r-9" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v1, lift small loads</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="r-10" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Stress test: lift at 100g, 200g, 300g — log failure point</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-11" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Friction test: jib rotates 360° smoothly under load</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-12" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v2: strengthen weak points, add brake/ratchet on the drum</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="r-13" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v2</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="r-14" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v2, final lift tests</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="r-15" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Apply finishes; lock BOM and cost sheet</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="r-16" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 01 (Mechanical) — Crane review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T5 ROPEWAY ============ -->
+  <section class="panel" id="panel-ropeway">
+    <div class="track" data-product="ropeway">
+      <div class="track-header">
+        <div class="track-num">T5</div>
+        <div class="track-title">Ropeway — Cycle 4</div>
+        <div class="track-meta">Order 4 of 4 · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Reuses the Windmill tower geometry and Crane cable spec. Two towers, one continuous cable loop, a cabin that travels back and forth via hand crank or gravity. The most novel-looking product.</div>
+        <ul class="tasks">
+          <li class="task" data-id="y-1" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Drive decision: hand crank, gravity-only, or continuous loop</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-2" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Tower geometry: reuse Windmill tower with new top piece, or unique lattice</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Cabin design: open gondola vs enclosed pod vs ski-lift bench</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-4" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cable tension mechanism: turnbuckle, slider weight, or spring</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="y-5" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v1: 2 towers, cabin, pulleys, tension mechanism, base anchors</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="y-6" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cabin attachment: clip onto cable vs threaded pulley</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="y-7" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Calculate cable span (target 60cm between towers)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="y-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v1</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="y-9" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v1, string cable, test cabin travel</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="y-10" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Tension test: cable doesn't sag with 100g cabin</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-11" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Tower stability test: doesn't tip under cable tension</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-12" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">CAD v2: fix issues, add stop-blocks at each end</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="y-13" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Cut v2</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="y-14" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Assemble v2, full travel test</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="y-15" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Apply finishes; lock BOM and cost sheet</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="y-16" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 01 (Mechanical) — Ropeway review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T6 BRAND & PACK ============ -->
+  <section class="panel" id="panel-brand">
+    <div class="track" data-product="brand">
+      <div class="track-header">
+        <div class="track-num">T6</div>
+        <div class="track-title">Brand · Packaging · Booklet · Photography</div>
+        <div class="track-meta">Per-product · Person A</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">The unboxing IS the product for the first 90 seconds. Box, insert, booklet, sticker, thank-you card — designed once as a template, then reskinned for each product.</div>
+        <ul class="tasks">
+          <li class="task" data-id="b-1" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Lock MOTRIX brand kit: logo (lockup + monogram), wordmark, color tokens, type pairing</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-2" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Write brand voice guide — playful but industrial; 5 do/don't examples</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Trademark search (India): MOTRIX + class 28 (toys)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-4" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">File MOTRIX trademark application (Class 28, India)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-5" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Box style decision: drawer-slide, flap-top, or tube — same template across 4 products</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-6" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Box artwork template — front panel, back, sides, top, bottom (dieline first)</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-7" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Front panel content: product name, age band, "what's inside" icon row, MOTRIX-Link badge</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-8" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Back panel: feature highlights, dimensions, safety, contents</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-9" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Side panels: hero photo, QR for assembly video, support contact</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-10" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Box: barcode placement (EAN-13 reserved space), batch field</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-11" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Get GS1 India membership and reserve EAN-13 codes (one per SKU)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-12" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Get 2 box printer quotes — corrugated 5-ply vs rigid kraft</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-13" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Order box sample (1 unit) — full assembly inside for fit-check</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-14" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Design die-cut cardboard insert — every part has a labeled slot</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-15" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">Write Windmill assembly booklet — 16 pages, illustrated step-by-step</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="b-16" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Booklet page 1: parts checklist with photos (every screw counted)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-17" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Booklet pages 2–11: assembly steps, exploded views, "common mistakes"</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-18" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Booklet pages 12–14: "How it works" — wind physics in 1 spread, no jargon</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-19" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Booklet pages 15–16: try-this experiments, troubleshooting, warranty</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-20" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Get booklet printed (saddle-stitched, 100gsm, A5)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-21" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Design warranty + replacement-parts card (postcard size)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-22" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Design thank-you note + MOTRIX-Link sticker (die-cut)</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-23" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Set up product photography space: paper roll, single light, tripod</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-24" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Photo set 1: hero shot, 4 angles, exploded layout (white background — for Amazon)</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-25" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Photo set 2: lifestyle (kid's hands, table), scale reference</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-26" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Photo set 3: unboxing flat-lay top-down</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-27" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Photo set 4: detail close-ups (mechanism, finish, MOTRIX-Link badge)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-28" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Shoot 30-second hero video — windmill spinning, slow-mo blades</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-29" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Shoot unboxing video — first-person POV, 60-90 seconds</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-30" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Shoot assembly time-lapse — full build compressed to 60 seconds</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-31" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Edit videos: export 16:9 (web/YouTube), 9:16 (Reels/Shorts), 1:1 (Insta)</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="b-32" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Edit photos: web (1500px), Amazon main (2000px on white), Etsy 2000×2000</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-33" data-who="A" data-hrs="1"><span class="check"></span><span class="task-text">Hand the kit to a stranger — observe their assembly silently, time it</span><span class="who who-A">A</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="b-34" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Revise booklet based on stranger's confusion points</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="b-35" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 02 (Stranger) — Windmill review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T7 WEBSITE ============ -->
+  <section class="panel" id="panel-web">
+    <div class="track" data-product="web">
+      <div class="track-header">
+        <div class="track-num">T7</div>
+        <div class="track-title">MOTRIX.in — Own E-commerce Website</div>
+        <div class="track-meta">Person B · 1 hr/day</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">The owned-channel storefront. Higher margin than marketplaces, slower traffic. Built first; marketplaces piggyback on its content.</div>
+        <ul class="tasks">
+          <li class="task" data-id="we-1" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Buy domain motrix.in (and .com if available) — check trademark conflicts</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-2" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Platform decision: Shopify vs WooCommerce vs Shoplazza vs custom Next.js + Stripe</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-3" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up business email: hello@, orders@, support@motrix.in</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-4" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Register business entity (proprietorship or LLP) + Udyam MSME</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-5" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">GST registration (needed for inter-state &amp; Amazon)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-6" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Find HSN code for STEM toys (9503) — confirm GST rate</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-7" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Open current account for business</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-8" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Razorpay account + KYC (UPI, cards, netbanking, COD optional)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-9" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Stripe account for international (Etsy customers off-platform)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-10" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Shiprocket / Delhivery / Bluedart accounts — compare rate cards</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-11" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Write privacy policy (DPDP Act 2023 compliant + GDPR for EU buyers)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-12" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Write terms of service</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-13" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Write refund/return policy (7-day return window for STEM kits)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-14" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Write shipping policy (zones, timelines, charges, damage handling)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-15" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Wireframe all pages: home, shop, product, cart, checkout, about, journal, support</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-16" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Pick theme aligned with brand kit; install &amp; customize colors/fonts</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-17" data-who="B" data-hrs="3"><span class="check"></span><span class="task-text">Build homepage: hero video, brand story, 4 product preview, MOTRIX-Link explainer</span><span class="who who-B">B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="we-18" data-who="B" data-hrs="3"><span class="check"></span><span class="task-text">Build Windmill PDP: gallery, video, description, specs, age, FAQ, reviews</span><span class="who who-B">B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="we-19" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Build "coming soon" pages for Conveyor/Crane/Ropeway with email capture</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-20" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Build About page — MOTRIX origin, MOTRIX-Link philosophy, founder photos</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-21" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Build Contact + working form (to support@ inbox)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-22" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Build FAQ page + support / help center</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-23" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Cart page: quantity, shipping estimate, upsell slot ("bundle all 4")</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-24" data-who="B" data-hrs="3"><span class="check"></span><span class="task-text">Checkout: address, shipping method, payment, order review</span><span class="who who-B">B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="we-25" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Connect Razorpay, test mode end-to-end (UPI, card, COD)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-26" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Set up transactional emails: order confirm, shipped, delivered, review request</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-27" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up Klaviyo / Mailchimp for newsletter + abandoned-cart automation</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-28" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up Google Analytics 4, Search Console, Bing Webmaster</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-29" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up Meta Pixel + TikTok Pixel for ad retargeting</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-30" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">SEO basics: title tags, meta descriptions, schema (Product, Organization), sitemap, robots.txt</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-31" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up Hotjar / PostHog for session recordings (find checkout drop-off)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-32" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Mobile testing: iPhone Safari, Android Chrome, Pixel small screen, slow 3G</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="we-33" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Lighthouse audit — performance, accessibility, SEO all ≥90</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-34" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Switch Razorpay to live mode, do a real ₹1 self-purchase</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="we-35" data-who="X" data-hrs="2"><span class="check"></span><span class="task-text">Joint dress rehearsal — both place real orders, both find &amp; log bugs</span><span class="who who-X">A+B</span><span class="hrs">2h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ T8 MARKETPLACES ============ -->
+  <section class="panel" id="panel-marketplaces">
+
+    <div class="track" data-product="amazon" data-channel="amazon">
+      <div class="track-header">
+        <div class="track-num">T8a</div>
+        <div class="track-title">Amazon India — Seller Central</div>
+        <div class="track-meta">Largest reach · Person B</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Highest unit volume in India for STEM kits. Get listings live first; optimize ranking after first 20 reviews.</div>
+        <ul class="tasks">
+          <li class="task" data-id="am-1" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Register Amazon India Seller Central — pick Individual or Professional plan</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-2" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Complete seller verification (PAN, GST, bank, address proof)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-3" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Apply for Brand Registry (requires trademark; queue once filed)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-4" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Decide fulfillment: FBA (Amazon stores) vs Easy Ship vs Self-Ship</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-5" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Research category: Toys &amp; Games &gt; STEM Toys — top 20 ASINs, price range, reviews</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-6" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Keyword research using Helium 10 / Jungle Scout free trial</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-7" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Write Windmill listing: title (≤200 chars, front-loaded keywords)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-8" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Write 5 bullet points (each ≤500 chars, benefit-led, keyword-rich)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-9" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Write product description with HTML formatting + safety + age band</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-10" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Fill backend search terms (≤250 bytes, no duplicate-of-title words)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-11" data-who="A" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Prepare Amazon-spec photos: main on pure white, 7 lifestyle/feature, 2000px+</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-12" data-who="B" data-hrs="3" data-channel="amazon"><span class="check"></span><span class="task-text">Design A+ Content modules (after Brand Registry): brand story + 5 modules</span><span class="who who-B">B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="am-13" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Upload product video (≤30s, hero + assembly time-lapse)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-14" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Assign EAN-13 to Windmill SKU, get FNSKU if FBA</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-15" data-who="A" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Print FNSKU labels for FBA prep; print EAN labels for Easy Ship</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-16" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Set price: MRP, list price, business price; configure Save+Subscribe ineligibility</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-17" data-who="A" data-hrs="3" data-channel="amazon"><span class="check"></span><span class="task-text">If FBA: pack 25 units to FBA spec, create inbound shipment, dispatch</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="am-18" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Launch listing — request review on hidden ASIN before going public</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-19" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Set up Sponsored Products (auto + manual targeting), ₹200/day cap</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="am-20" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Enroll in Amazon Vine (post Brand Registry, gets reviews)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-21" data-who="B" data-hrs="1" data-channel="amazon"><span class="check"></span><span class="task-text">Set up auto-emails: Request Review at day 5 post-delivery</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="am-22" data-who="B" data-hrs="2" data-channel="amazon"><span class="check"></span><span class="task-text">Monitor: BSR rank, sessions, conversion, ad spend, ACOS in first 30 days</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="track" data-product="flipkart" data-channel="flipkart">
+      <div class="track-header">
+        <div class="track-num">T8b</div>
+        <div class="track-title">Flipkart Seller Hub</div>
+        <div class="track-meta">India tier-2/3 reach · Person B</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Lower competition than Amazon for premium STEM toys, strong COD demand from smaller cities. Listings translate fast from Amazon work.</div>
+        <ul class="tasks">
+          <li class="task" data-id="fk-1" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Register Flipkart Seller Hub — submit PAN, GST, bank, signature</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-2" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Complete verification + signed seller agreement</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-3" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Choose category: Toys &gt; Educational &gt; STEM</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-4" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Decide fulfillment: F-Assured (FBF) vs self-ship via Ekart</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-5" data-who="B" data-hrs="2" data-channel="flipkart"><span class="check"></span><span class="task-text">Catalog: title, description, attributes, price, MRP, stock</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="fk-6" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Upload images per Flipkart spec (white background, ≥500px)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-7" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Get listing approved, fix any policy flags</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-8" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Enable COD (mandatory for tier-2/3 traction)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-9" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Set up Flipkart Ads (PLA, Product Listing Ads) with ₹100/day cap</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="fk-10" data-who="A" data-hrs="2" data-channel="flipkart"><span class="check"></span><span class="task-text">Prepare 10 kits for first Flipkart shipments (Ekart pickup)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="fk-11" data-who="B" data-hrs="1" data-channel="flipkart"><span class="check"></span><span class="task-text">Monitor first-30-day Flipkart metrics: visibility, GMV, returns</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="track" data-product="etsy" data-channel="etsy">
+      <div class="track-header">
+        <div class="track-num">T8c</div>
+        <div class="track-title">Etsy — Global Premium Audience</div>
+        <div class="track-meta">USD revenue · Person B</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Wood-craft buyers in US/UK/EU/AU willing to pay 2-3× Indian prices. Slow burn, high margin, brand-building moat.</div>
+        <ul class="tasks">
+          <li class="task" data-id="et-1" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Set up Etsy shop "MOTRIX" — registration, payment account (Etsy Payments)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-2" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Complete shop policies: shipping (international zones), returns, FAQ</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-3" data-who="B" data-hrs="2" data-channel="etsy"><span class="check"></span><span class="task-text">Design Etsy shop banner, icon, About story (handcrafted in India)</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="et-4" data-who="B" data-hrs="2" data-channel="etsy"><span class="check"></span><span class="task-text">Etsy SEO research: long-tail keywords ("wooden STEM kit", "kinetic toy")</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="et-5" data-who="B" data-hrs="2" data-channel="etsy"><span class="check"></span><span class="task-text">Write Windmill listing: title (140 chars, keyword-dense), 13 tags, attributes</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="et-6" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Upload 10 images (2000×2000) + 1 video; first image is the strongest hook</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-7" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Set USD pricing — research India craft sellers on Etsy for benchmarks</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-8" data-who="B" data-hrs="2" data-channel="etsy"><span class="check"></span><span class="task-text">Set up international shipping profiles: DHL/FedEx, customs HSN 9503</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="et-9" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Calculate landed cost including customs duty in destination country</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-10" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Enable Etsy Ads, $1/day cap initially</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="et-11" data-who="B" data-hrs="1" data-channel="etsy"><span class="check"></span><span class="task-text">Set up Star Seller eligibility track (reply &lt;24h, dispatch on time, 5-star)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ T9 LAUNCH ============ -->
+  <section class="panel" id="panel-launch">
+    <div class="track" data-product="launch">
+      <div class="track-header">
+        <div class="track-num">T9</div>
+        <div class="track-title">Launch &amp; Operations — Windmill Goes Live</div>
+        <div class="track-meta">All channels · Both Operators</div>
+        <div class="track-progress"><span data-track-pct>0</span>%</div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Inventory, soft launch to friends, first 10 real strangers, fix everything they complain about, public launch on all 4 channels.</div>
+        <ul class="tasks">
+          <li class="task" data-id="l-1" data-who="A" data-hrs="6"><span class="check"></span><span class="task-text">Order parts for first 50 Windmill kits (across 2 cuts to reduce risk)</span><span class="who who-A">A</span><span class="hrs">6h</span></li>
+          <li class="task" data-id="l-2" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Order 50 boxes + 50 insert sets + 50 booklets printed</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="l-3" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Set up packing station: parts bins, jig for kit assembly, QC checklist</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-4" data-who="A" data-hrs="6"><span class="check"></span><span class="task-text">Pack 50 kits — every box identical, every part verified, batch number stamped</span><span class="who who-A">A</span><span class="hrs">6h</span></li>
+          <li class="task" data-id="l-5" data-who="A" data-hrs="2"><span class="check"></span><span class="task-text">Stress-test packaging: drop test box at 1m onto concrete (3 angles)</span><span class="who who-A">A</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-6" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Add Windmill to motrix.in: stock = 30 (rest reserved for marketplaces)</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-7" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Soft-launch list: friends, family, prior network — 50 addresses</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-8" data-who="X" data-hrs="2"><span class="check"></span><span class="task-text">Write soft-launch email + WhatsApp message — short, link, asking for honest feedback</span><span class="who who-X">A+B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-9" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">Send soft launch — target 10 orders in 14 days</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-10" data-who="A" data-hrs="4"><span class="check"></span><span class="task-text">Fulfill first 10 orders — pack, label, ship, track delivery</span><span class="who who-A">A</span><span class="hrs">4h</span></li>
+          <li class="task" data-id="l-11" data-who="X" data-hrs="3"><span class="check"></span><span class="task-text">Call each of 10 customers personally — collect raw feedback</span><span class="who who-X">A+B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="l-12" data-who="X" data-hrs="3"><span class="check"></span><span class="task-text">Fix top 3 issues from feedback (product, booklet, or website)</span><span class="who who-X">A+B</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="l-13" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Shoot 1 UGC-style video using a real customer (with consent)</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="l-14" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Add testimonials + UGC video to PDP &amp; A+ content</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-15" data-who="B" data-hrs="2"><span class="check"></span><span class="task-text">Set up @motrix.in on Instagram, draft first 9 grid posts</span><span class="who who-B">B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-16" data-who="B" data-hrs="1"><span class="check"></span><span class="task-text">Set up YouTube channel + upload hero + assembly videos</span><span class="who who-B">B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-17" data-who="A" data-hrs="3"><span class="check"></span><span class="task-text">Reach out to 10 parenting / STEM micro-influencers, gift units</span><span class="who who-A">A</span><span class="hrs">3h</span></li>
+          <li class="task" data-id="l-18" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">Public launch — IG, LinkedIn, X, WhatsApp status, Reddit r/india</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-19" data-who="X" data-hrs="2"><span class="check"></span><span class="task-text">20-customer milestone review — true cost, time per kit, failure rate</span><span class="who who-X">A+B</span><span class="hrs">2h</span></li>
+          <li class="task" data-id="l-20" data-who="X" data-hrs="1"><span class="check"></span><span class="task-text">GATE 03 (Sale, 5+ strangers paid) + GATE 04 (Margin known) review</span><span class="who who-X">A+B</span><span class="hrs">1h</span></li>
+          <li class="task" data-id="l-21" data-who="X" data-hrs="2"><span class="check"></span><span class="task-text">DECISION: start Conveyor cycle, or double-down on Windmill v3?</span><span class="who who-X">A+B</span><span class="hrs">2h</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPECS ============ -->
+  <section class="panel" id="panel-specs">
+    <table class="spec-table">
+      <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Brand Name</td><td>MOTRIX</td><td>Machines · Operations · Torque · Real-world · Industrial · Xploration</td></tr>
+        <tr><td>Interop Standard</td><td>MOTRIX-Link v1.1</td><td>Lock before any product CAD</td></tr>
+        <tr><td>Primary Material</td><td>Birch Ply 4mm / 6mm</td><td>Laser-cut, food-safe finish</td></tr>
+        <tr><td>Accent Color</td><td>Matte Black + Industrial Orange</td><td>Brand-locked palette</td></tr>
+        <tr><td>Shaft Diameter</td><td>4 mm</td><td>Same across all 4 products</td></tr>
+        <tr><td>Motor Standard</td><td>N20 Geared DC</td><td>Conveyor only at launch</td></tr>
+        <tr><td>Mounting Pattern</td><td>M3 grid, 10mm pitch</td><td>Universal base footprint</td></tr>
+        <tr><td>Pulley / Wheel</td><td>4mm bore, 25mm OD</td><td>Windmill hub, Crane drum, Ropeway pulley</td></tr>
+        <tr><td>String / Cable</td><td>0.8mm braided polyester</td><td>Crane + Ropeway shared</td></tr>
+        <tr><td>HSN Code</td><td>9503 (Toys)</td><td>India GST + Etsy customs declaration</td></tr>
+        <tr><td>Barcode</td><td>EAN-13 via GS1 India</td><td>Reserve before printing boxes</td></tr>
+        <tr><td>Trademark</td><td>Class 28 (toys), India</td><td>Required for Amazon Brand Registry</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <div>MOTRIX · Master Build Plan · v2.0 · Auto-saves to your browser</div>
+    <div>Export your progress as JSON for backup</div>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  const STORAGE_KEY = 'motrix-master-v2';
+  let state = {};
+
+  // ====== LOAD ======
+  try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) state = JSON.parse(saved); } catch(e) { state = {}; }
+
+  // ====== AUTO-SAVE INDICATOR ======
+  const saveIndicator = document.getElementById('saveIndicator');
+  let saveTimer = null;
+  function flashSaved() {
+    saveIndicator.textContent = 'Saved ✓';
+    saveIndicator.classList.add('flash');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      saveIndicator.textContent = 'Auto-saved';
+      saveIndicator.classList.remove('flash');
+    }, 1500);
+  }
+
+  const save = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      flashSaved();
+    } catch(e) {}
+  };
+
+  // ====== HYDRATE CHECKBOXES ======
+  document.querySelectorAll('li.task').forEach(li => {
+    const id = li.dataset.id;
+    if (state[id]) li.classList.add('done');
+    li.addEventListener('click', () => {
+      li.classList.toggle('done');
+      state[id] = li.classList.contains('done');
+      save();
+      updateAll();
+    });
+  });
+
+  // ====== PRODUCT GRID (DYNAMIC) ======
+  // Maps product key → which tab(s) contain its tasks
+  const products = [
+    { key: 'windmill', name: 'Windmill', id: 'KL-W01', icon: '⊛', order: 1, panel: 'windmill', extraPanels: ['standard'] },
+    { key: 'conveyor', name: 'Conveyor Belt', id: 'KL-C02', icon: '▬', order: 2, panel: 'conveyor', extraPanels: [] },
+    { key: 'crane',    name: 'Crane',         id: 'KL-R03', icon: '⌐', order: 3, panel: 'crane',    extraPanels: [] },
+    { key: 'ropeway',  name: 'Ropeway',       id: 'KL-Y04', icon: '⋰', order: 4, panel: 'ropeway',  extraPanels: [] }
+  ];
+
+  const grid = document.getElementById('productsGrid');
+  products.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'prod';
+    card.dataset.productKey = p.key;
+    card.innerHTML = `
+      <div class="prod-img">${p.icon}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-id">${p.id} · MOTRIX-Link v1.1</div>
+        <span class="prod-status">Queued</span>
+        <div class="prod-order">Order · ${p.order} of 4</div>
+      </div>
+      <div class="prod-mini-bar"><div class="prod-mini-fill"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ====== TABS ======
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // ====== UPDATE ALL ======
+  function updateAll() {
+    // overall progress
+    const all = document.querySelectorAll('li.task');
+    const done = document.querySelectorAll('li.task.done');
+    const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+    document.getElementById('progPct').textContent = pct;
+    document.getElementById('progDone').textContent = done.length;
+    document.getElementById('progTotal').textContent = all.length;
+    document.getElementById('progFill').style.width = pct + '%';
+
+    // operator totals
+    const counts = { A: [0,0], B: [0,0], X: [0,0] };
+    all.forEach(li => {
+      const w = li.dataset.who;
+      if (counts[w]) {
+        counts[w][1]++;
+        if (li.classList.contains('done')) counts[w][0]++;
+      }
+    });
+    document.getElementById('paDone').textContent = counts.A[0];
+    document.getElementById('paTotal').textContent = counts.A[1];
+    document.getElementById('pbDone').textContent = counts.B[0];
+    document.getElementById('pbTotal').textContent = counts.B[1];
+    document.getElementById('pxDone').textContent = counts.X[0];
+    document.getElementById('pxTotal').textContent = counts.X[1];
+
+    // per-track progress
+    document.querySelectorAll('.track').forEach(track => {
+      const tasks = track.querySelectorAll('li.task');
+      const tDone = track.querySelectorAll('li.task.done');
+      const tPct = tasks.length ? Math.round((tDone.length / tasks.length) * 100) : 0;
+      const pctEl = track.querySelector('[data-track-pct]');
+      if (pctEl) pctEl.textContent = tPct;
+    });
+
+    // per-product totals (across product's panels)
+    let activeProductFound = false;
+    let currentProduct = null;
+
+    products.forEach(p => {
+      const panelIds = [p.panel, ...p.extraPanels];
+      let pTotal = 0, pDone = 0;
+      panelIds.forEach(pid => {
+        const panel = document.getElementById('panel-' + pid);
+        if (!panel) return;
+        const ts = panel.querySelectorAll('li.task');
+        const td = panel.querySelectorAll('li.task.done');
+        pTotal += ts.length;
+        pDone += td.length;
+      });
+      const pPct = pTotal ? Math.round((pDone / pTotal) * 100) : 0;
+
+      const card = document.querySelector(`.prod[data-product-key="${p.key}"]`);
+      if (!card) return;
+      const statusEl = card.querySelector('.prod-status');
+      const fillEl = card.querySelector('.prod-mini-fill');
+      fillEl.style.width = pPct + '%';
+
+      card.classList.remove('active', 'complete');
+      statusEl.classList.remove('s-active', 's-done');
+
+      if (pPct === 100 && pTotal > 0) {
+        card.classList.add('complete');
+        statusEl.classList.add('s-done');
+        statusEl.textContent = '✓ Complete';
+      } else if (!activeProductFound && pPct < 100) {
+        card.classList.add('active');
+        statusEl.classList.add('s-active');
+        statusEl.textContent = 'Building Now · ' + pPct + '%';
+        activeProductFound = true;
+        currentProduct = { ...p, pct: pPct, done: pDone, total: pTotal };
+      } else {
+        statusEl.textContent = 'Queued';
+      }
+    });
+
+    // current product banner
+    if (currentProduct) {
+      document.getElementById('currentName').textContent = currentProduct.name;
+      document.getElementById('currentDone').textContent = currentProduct.done;
+      document.getElementById('currentTotal').textContent = currentProduct.total;
+      document.getElementById('currentPct').textContent = currentProduct.pct;
+    } else {
+      document.getElementById('currentName').textContent = 'All Products Complete 🎉';
+      document.getElementById('currentDone').textContent = done.length;
+      document.getElementById('currentTotal').textContent = all.length;
+      document.getElementById('currentPct').textContent = 100;
+    }
+
+    // channel progress
+    const channels = ['amazon', 'flipkart', 'etsy'];
+    channels.forEach(ch => {
+      const tasks = document.querySelectorAll(`li.task[data-channel="${ch}"]`);
+      const tDone = document.querySelectorAll(`li.task[data-channel="${ch}"].done`);
+      const tPct = tasks.length ? Math.round((tDone.length / tasks.length) * 100) : 0;
+      const dEl = document.querySelector(`[data-ch-done="${ch}"]`);
+      const tEl = document.querySelector(`[data-ch-total="${ch}"]`);
+      const bEl = document.querySelector(`[data-ch-bar="${ch}"]`);
+      if (dEl) dEl.textContent = tDone.length;
+      if (tEl) tEl.textContent = tasks.length;
+      if (bEl) bEl.style.width = tPct + '%';
+    });
+    // own website channel (track t7)
+    const ownTasks = document.querySelectorAll('#panel-web li.task');
+    const ownDone = document.querySelectorAll('#panel-web li.task.done');
+    const ownPct = ownTasks.length ? Math.round((ownDone.length / ownTasks.length) * 100) : 0;
+    const ownDEl = document.querySelector('[data-ch-done="own"]');
+    const ownTEl = document.querySelector('[data-ch-total="own"]');
+    const ownBEl = document.querySelector('[data-ch-bar="own"]');
+    if (ownDEl) ownDEl.textContent = ownDone.length;
+    if (ownTEl) ownTEl.textContent = ownTasks.length;
+    if (ownBEl) ownBEl.style.width = ownPct + '%';
+
+    // tab badges
+    document.querySelectorAll('.tab').forEach(tab => {
+      const panelId = tab.dataset.panel;
+      const panel = document.getElementById('panel-' + panelId);
+      if (!panel) return;
+      const ts = panel.querySelectorAll('li.task');
+      const td = panel.querySelectorAll('li.task.done');
+      if (ts.length === 0) return;
+      tab.classList.toggle('complete', td.length === ts.length);
+      let badge = tab.querySelector('.mini');
+      const txt = td.length + '/' + ts.length;
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'mini';
+        tab.appendChild(badge);
+      }
+      badge.textContent = txt;
+    });
+  }
+  updateAll();
+
+  // ====== EXPORT ======
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = {
+      app: 'MOTRIX-Master',
+      version: '2.0',
+      exported: new Date().toISOString(),
+      progress: state
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `motrix-progress-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ====== IMPORT ======
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFile').click();
+  });
+  document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data && data.progress) {
+          if (!confirm('Replace current progress with imported file? Your current state will be overwritten.')) return;
+          state = data.progress;
+          save();
+          document.querySelectorAll('li.task').forEach(li => {
+            li.classList.toggle('done', !!state[li.dataset.id]);
+          });
+          updateAll();
+          alert('Imported successfully.');
+        } else {
+          alert('Invalid file format.');
+        }
+      } catch (err) {
+        alert('Could not parse JSON: ' + err.message);
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ====== RESET ======
+  document.getElementById('resetBtn').addEventListener('click', (e) => {
+    if (e.currentTarget.disabled) return;
+    if (confirm('Reset all progress? This cannot be undone (consider exporting first).')) {
+      state = {};
+      save();
+      document.querySelectorAll('li.task.done').forEach(li => li.classList.remove('done'));
+      updateAll();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
